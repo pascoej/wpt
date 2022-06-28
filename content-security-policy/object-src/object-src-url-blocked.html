@@ -9,13 +9,21 @@
 
 <body>
     <script>
-      var t = async_test("Should block the object and fire a spv");
-      window.addEventListener('securitypolicyviolation', t.step_func_done(function(e) {
+      var t_async = async_test("Should block the object and fire a spv");
+      var expected = 3;
+      var count = 0;
+      window.addEventListener('securitypolicyviolation', t_async.step_func(function(e) {
+        count++;
         assert_equals(e.violatedDirective, "object-src");
+        if (count == expected) {
+          t_async.done();
+        }
       }));
     </script>
 
-    <object type="image/png" data="/content-security-policy/support/fail.png"></object>
+    <object onload="t_async.step(function() { assert_unreached('CSP should block this object from loading'); t_async.done(); });" type="image/png" data="/content-security-policy/support/fail.png"></object>
+    <object onload="t_async.step(function() { assert_unreached('CSP should block this object from loading'); t_async.done(); });" data="/content-security-policy/support/fail.png"></object>
+    <object onload="t_async.step(function() { assert_unreached('CSP should block this object from loading'); t_async.done(); });" data="application/x-webkit-test-netscape"></object>
 </body>
 
 </html>
